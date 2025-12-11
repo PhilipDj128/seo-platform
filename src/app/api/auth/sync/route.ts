@@ -39,6 +39,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Verifiera att sessionen är satt
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.error("❌ Session not set after setSession call");
+      return NextResponse.json({ error: "Failed to set session" }, { status: 500 });
+    }
+
+    console.log("✅ Session synced to cookies successfully");
+
     return NextResponse.json({ success: true, user: data.user });
   } catch (error: any) {
     console.error("❌ Error in sync route:", error);
