@@ -92,6 +92,7 @@ export default function LoginForm() {
 
       // Synka session till cookies via API så att middleware kan läsa den
       console.log("🔄 Syncing session to cookies via API...");
+      let syncSuccess = false;
       try {
         const syncResponse = await fetch("/api/auth/sync", {
           method: "POST",
@@ -105,16 +106,23 @@ export default function LoginForm() {
         });
 
         if (syncResponse.ok) {
-          console.log("✅ Session synced to cookies successfully");
+          const syncData = await syncResponse.json();
+          console.log("✅ Session synced to cookies successfully:", syncData);
+          syncSuccess = true;
         } else {
-          console.warn("⚠️ Failed to sync session to cookies, but continuing anyway");
+          const errorData = await syncResponse.json().catch(() => ({}));
+          console.warn("⚠️ Failed to sync session to cookies:", errorData);
         }
       } catch (err) {
         console.warn("⚠️ Error syncing session to cookies:", err);
       }
       
-      // Extra väntan för cookie-synkning
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!syncSuccess) {
+        console.warn("⚠️ Cookie sync failed, but redirecting anyway - session may work");
+      }
+      
+      // Extra väntan för cookie-synkning att spridas
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log("🚀 Redirecting to /dashboard...");
       console.log("🚀 Current URL:", window.location.href);
