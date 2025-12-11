@@ -40,16 +40,33 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Ge extra tid för session-synkning i production
     if (!loading && !user) {
-      const timer = setTimeout(async () => {
-        // Dubbelkolla sessionen en sista gång
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      const checkSession = async () => {
+        attempts++;
+        console.log(`🔄 Checking session (attempt ${attempts}/${maxAttempts})...`);
+        
+        // Kontrollera både localStorage (client) och försök läsa från cookies
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          console.log("❌ No session found, redirecting to login");
-          router.push("/login");
-        } else {
+        
+        if (session?.user) {
           console.log("✅ Session found, staying on dashboard");
+          // Trigger auth state change för att uppdatera useAuth
+          return;
         }
-      }, 3000); // Vänta 3 sekunder för session-synkning
+        
+        if (attempts < maxAttempts) {
+          // Vänta lite längre och försök igen
+          setTimeout(checkSession, 500);
+        } else {
+          console.log("❌ No session found after all attempts, redirecting to login");
+          router.push("/login");
+        }
+      };
+      
+      // Starta första kontrollen efter 1 sekund
+      const timer = setTimeout(checkSession, 1000);
       
       return () => clearTimeout(timer);
     }
