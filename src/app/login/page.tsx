@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function LoginPage() {
   useEffect(() => {
     console.log("📄 LoginPage component mounted");
+    console.log("📄 Current URL:", window.location.href);
   }, []);
 
   return (
