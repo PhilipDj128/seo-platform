@@ -5,17 +5,26 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-console.log("🔧 Initializing Supabase client...");
-console.log("🔧 Supabase URL exists:", !!supabaseUrl);
-console.log("🔧 Supabase URL length:", supabaseUrl?.length || 0);
-console.log("🔧 Supabase URL starts with https:", supabaseUrl?.startsWith("https://") || false);
-console.log("🔧 Supabase Anon Key exists:", !!supabaseAnonKey);
-console.log("🔧 Supabase Anon Key length:", supabaseAnonKey?.length || 0);
+// Logga environment variables (utan att visa hela nyckeln)
+if (typeof window !== 'undefined') {
+  console.log("🔧 Initializing Supabase client (CLIENT-SIDE)...");
+  console.log("🔧 Supabase URL exists:", !!supabaseUrl);
+  console.log("🔧 Supabase URL:", supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "MISSING");
+  console.log("🔧 Supabase Anon Key exists:", !!supabaseAnonKey);
+  console.log("🔧 Supabase Anon Key length:", supabaseAnonKey?.length || 0);
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("❌ Missing Supabase environment variables!");
+  const errorMsg = "❌ Missing Supabase environment variables! Check Vercel settings.";
+  console.error(errorMsg);
   console.error("❌ URL:", supabaseUrl || "MISSING");
   console.error("❌ Key:", supabaseAnonKey ? "EXISTS" : "MISSING");
+  
+  // I production, visa ett tydligt felmeddelande istället för att krascha
+  if (typeof window !== 'undefined') {
+    alert("❌ Supabase environment variables saknas! Kontrollera Vercel-inställningar.");
+  }
+  
   throw new Error("Missing Supabase environment variables");
 }
 
@@ -26,13 +35,21 @@ export const supabase = (() => {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       },
     });
-    console.log("✅ Supabase client created successfully");
-    console.log("✅ Supabase client has auth:", !!client.auth);
+    
+    if (typeof window !== 'undefined') {
+      console.log("✅ Supabase client created successfully");
+      console.log("✅ Supabase client has auth:", !!client.auth);
+    }
+    
     return client;
   } catch (error) {
     console.error("❌ Failed to create Supabase client:", error);
+    if (typeof window !== 'undefined') {
+      alert("❌ Kunde inte skapa Supabase client. Kontrollera environment variables.");
+    }
     throw error;
   }
 })();
