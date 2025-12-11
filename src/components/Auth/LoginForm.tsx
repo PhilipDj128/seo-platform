@@ -22,6 +22,7 @@ type FormValues = z.infer<typeof schema>;
 export default function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const {
     register,
     handleSubmit,
@@ -33,6 +34,7 @@ export default function LoginForm() {
   const onSubmit = async (values: FormValues) => {
     console.log("🚀 FORM SUBMITTED - Email:", values.email);
     setLoading(true);
+    setStatusMessage("Loggar in...");
     
     // Visa omedelbar feedback
     toast.info("Loggar in...", {
@@ -40,6 +42,7 @@ export default function LoginForm() {
     });
 
     try {
+      setStatusMessage("Kontaktar servern...");
       console.log("🔐 Calling signIn function...");
       const result = await signIn(values.email, values.password);
       
@@ -53,15 +56,18 @@ export default function LoginForm() {
       
       if (!result) {
         console.error("❌ No result from signIn");
+        setStatusMessage("❌ Inget svar från servern");
         throw new Error("Inget svar från servern. Försök igen.");
       }
 
       if (!result.session) {
         console.error("❌ No session in result");
+        setStatusMessage("❌ Ingen session skapades");
         throw new Error("Ingen session skapades. Kontrollera dina uppgifter.");
       }
 
       console.log("✅ Session created successfully!");
+      setStatusMessage("✅ Inloggning lyckades! Omdirigerar...");
 
       toast.success("Inloggning lyckades!", {
         description: "Omdirigerar till dashboard...",
@@ -85,6 +91,7 @@ export default function LoginForm() {
           : "Ett oväntat fel uppstod. Försök igen.";
       
       console.error("❌ Error message to show:", message);
+      setStatusMessage(`❌ ${message}`);
       
       toast.error("Inloggning misslyckades", {
         description: message,
@@ -124,6 +131,18 @@ export default function LoginForm() {
           <p className="text-sm text-red-400">{errors.password.message}</p>
         )}
       </div>
+
+      {statusMessage && (
+        <div className={`rounded-lg p-3 text-sm ${
+          statusMessage.startsWith("❌") 
+            ? "bg-red-500/10 text-red-400 border border-red-500/20" 
+            : statusMessage.startsWith("✅")
+            ? "bg-green-500/10 text-green-400 border border-green-500/20"
+            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+        }`}>
+          {statusMessage}
+        </div>
+      )}
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Loggar in..." : "Logga in"}
