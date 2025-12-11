@@ -21,12 +21,24 @@ export default function Navigation() {
   const { user, loading } = useAuth();
   const [isAuthed, setIsAuthed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
     // Vänta tills loading är klar innan vi sätter isAuthed
     if (!loading) {
       setIsAuthed(Boolean(user));
+      setShowButtons(true);
     }
+    
+    // Fallback: visa knappar efter max 3 sekunder även om loading är true
+    const timeout = setTimeout(() => {
+      setShowButtons(true);
+      if (!loading) {
+        setIsAuthed(Boolean(user));
+      }
+    }, 3000);
+    
+    return () => clearTimeout(timeout);
   }, [pathname, user, loading]);
 
   const handleLogout = async () => {
@@ -59,7 +71,7 @@ export default function Navigation() {
             </Link>
           ))}
           <ThemeToggle />
-          {!loading && (
+          {showButtons && (
             isAuthed ? (
               <Button variant="secondary" onClick={handleLogout}>
                 Logga ut
@@ -103,7 +115,7 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
-            {!loading && (
+            {showButtons && (
               isAuthed ? (
                 <Button variant="secondary" onClick={handleLogout} className="w-full">
                   Logga ut
