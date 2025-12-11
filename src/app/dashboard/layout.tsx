@@ -37,8 +37,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Ge lite extra tid för session-synkning i production
     if (!loading && !user) {
-      router.push("/login");
+      const timer = setTimeout(() => {
+        if (!user) {
+          router.push("/login");
+        }
+      }, 2000); // Vänta 2 sekunder för session-synkning
+      
+      return () => clearTimeout(timer);
     }
   }, [user, loading, router]);
 
