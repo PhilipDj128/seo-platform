@@ -10,7 +10,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { signIn } from "@/lib/auth";
-import { supabase, syncSessionToCookies } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 const schema = z.object({
   email: z.string().email("Ogiltig e-postadress"),

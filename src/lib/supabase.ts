@@ -53,20 +53,3 @@ export const supabase = (() => {
     throw error;
   }
 })();
-
-// Helper function för att synka session till cookies
-export async function syncSessionToCookies() {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      // Sätt cookie manuellt för att middleware ska kunna läsa den
-      document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
-      document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=604800; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
-      console.log("✅ Session synced to cookies");
-    }
-  } catch (error) {
-    console.error("❌ Failed to sync session to cookies:", error);
-  }
-}
