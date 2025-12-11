@@ -31,57 +31,66 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (values: FormValues) => {
+    console.log("🚀 FORM SUBMITTED - Email:", values.email);
     setLoading(true);
+    
+    // Visa omedelbar feedback
+    toast.info("Loggar in...", {
+      description: "Vänta medan vi loggar in dig",
+    });
+
     try {
-      console.log("🔐 Starting login process...");
+      console.log("🔐 Calling signIn function...");
       const result = await signIn(values.email, values.password);
       
-      console.log("📡 SignIn result:", result ? { user: result.user?.email, hasSession: !!result.session } : null);
+      console.log("📡 SignIn result received:", {
+        hasResult: !!result,
+        hasUser: !!result?.user,
+        userEmail: result?.user?.email,
+        hasSession: !!result?.session,
+        sessionToken: result?.session?.access_token ? "EXISTS" : "MISSING"
+      });
       
-      if (!result?.session) {
-        console.error("❌ No session in result");
-        throw new Error("Ingen session skapades. Försök igen.");
+      if (!result) {
+        console.error("❌ No result from signIn");
+        throw new Error("Inget svar från servern. Försök igen.");
       }
 
-      console.log("✅ Session created, verifying...");
+      if (!result.session) {
+        console.error("❌ No session in result");
+        throw new Error("Ingen session skapades. Kontrollera dina uppgifter.");
+      }
 
-      toast.success("Välkommen tillbaka!", {
-        description: "Du loggas in...",
+      console.log("✅ Session created successfully!");
+
+      toast.success("Inloggning lyckades!", {
+        description: "Omdirigerar till dashboard...",
       });
 
-      // Vänta och verifiera att sessionen är korrekt synkad
-      let sessionVerified = false;
-      let attempts = 0;
-      for (let i = 0; i < 15; i++) {
-        attempts++;
-        await new Promise(resolve => setTimeout(resolve, 400));
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log(`🔄 Attempt ${attempts}:`, { hasSession: !!session, hasUser: !!session?.user, error });
-        if (session?.user) {
-          sessionVerified = true;
-          console.log("✅ Session verified!");
-          break;
-        }
-      }
-
-      if (!sessionVerified) {
-        console.error("❌ Session verification failed after", attempts, "attempts");
-        // Försök ändå att redirecta - sessionen kanske synkas senare
-        console.log("⚠️ Redirecting anyway - session may sync later");
-      }
-
-      // Vänta lite extra för cookie-synkning i production
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Enklare approach - direkt redirect efter kort väntan
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      console.log("🚀 Redirecting to dashboard...");
-      // Använd window.location för full reload för att säkerställa session-synkning
+      console.log("🚀 Redirecting to /dashboard...");
       window.location.href = "/dashboard";
+      
     } catch (err) {
-      console.error("❌ Login error:", err);
-      const message = err instanceof Error ? err.message : "Ett oväntat fel uppstod.";
+      console.error("❌ LOGIN ERROR CAUGHT:", err);
+      console.error("❌ Error type:", typeof err);
+      console.error("❌ Error instanceof Error:", err instanceof Error);
+      
+      const message = err instanceof Error 
+        ? err.message 
+        : typeof err === 'string' 
+          ? err 
+          : "Ett oväntat fel uppstod. Försök igen.";
+      
+      console.error("❌ Error message to show:", message);
+      
       toast.error("Inloggning misslyckades", {
         description: message,
+        duration: 5000,
       });
+      
       setLoading(false);
     }
   };
