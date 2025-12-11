@@ -14,14 +14,28 @@ export async function middleware(request: NextRequest) {
     cookies: {
       get: (name: string) => request.cookies.get(name)?.value,
       set: (name: string, value: string, options: CookieOptions) => {
-        response.cookies.set({ name, value, ...options });
+        response.cookies.set({ 
+          name, 
+          value, 
+          ...options,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
       },
       remove: (name: string, options: CookieOptions) => {
-        response.cookies.set({ name, value: "", ...options, maxAge: 0 });
+        response.cookies.set({ 
+          name, 
+          value: "", 
+          ...options, 
+          maxAge: 0,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
       },
     },
   });
 
+  // Uppdatera sessionen för att säkerställa att cookies synkas
   const {
     data: { session },
   } = await supabase.auth.getSession();
