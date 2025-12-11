@@ -62,10 +62,12 @@ export default function Navigation() {
             </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={() => router.push("/login")}>
-                Logga in
-              </Button>
-              <Button onClick={() => router.push("/signup")}>Skapa konto</Button>
+              <Link href="/login">
+                <Button variant="ghost">Logga in</Button>
+              </Link>
+              <Link href="/signup">
+                <Button>Skapa konto</Button>
+              </Link>
             </div>
           )}
         </div>
@@ -102,25 +104,16 @@ export default function Navigation() {
               </Button>
             ) : (
               <>
-                <Button
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    router.push("/login");
-                    setMobileOpen(false);
-                  }}
-                >
-                  Logga in
-                </Button>
-                <Button
-                  className="w-full"
-                  onClick={() => {
-                    router.push("/signup");
-                    setMobileOpen(false);
-                  }}
-                >
-                  Skapa konto
-                </Button>
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="block w-full">
+                  <Button variant="ghost" className="w-full">
+                    Logga in
+                  </Button>
+                </Link>
+                <Link href="/signup" onClick={() => setMobileOpen(false)} className="block w-full">
+                  <Button className="w-full">
+                    Skapa konto
+                  </Button>
+                </Link>
               </>
             )}
           </div>

@@ -18,10 +18,10 @@ export default function Hero() {
             Automatisera rapporter, hitta luckor och leverera snabbare resultat.
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/signup">
+            <Link href="/signup" className="inline-block">
               <Button>Kom igång gratis</Button>
             </Link>
-            <Link href="/login">
+            <Link href="/login" className="inline-block">
               <Button variant="secondary">Logga in</Button>
             </Link>
           </div>
