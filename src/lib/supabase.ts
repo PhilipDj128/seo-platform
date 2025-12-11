@@ -1,13 +1,13 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Logga environment variables (utan att visa hela nyckeln)
 if (typeof window !== 'undefined') {
-  console.log("🔧 Initializing Supabase client (CLIENT-SIDE)...");
+  console.log("🔧 Initializing Supabase client (CLIENT-SIDE with SSR)...");
   console.log("🔧 Supabase URL exists:", !!supabaseUrl);
   console.log("🔧 Supabase URL:", supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "MISSING");
   console.log("🔧 Supabase Anon Key exists:", !!supabaseAnonKey);
@@ -30,17 +30,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = (() => {
   try {
-    const client = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      },
-    });
+    // Använd createBrowserClient från @supabase/ssr för korrekt cookie-synkning
+    const client = createBrowserClient(supabaseUrl, supabaseAnonKey);
     
     if (typeof window !== 'undefined') {
-      console.log("✅ Supabase client created successfully");
+      console.log("✅ Supabase client created successfully (with SSR cookie sync)");
       console.log("✅ Supabase client has auth:", !!client.auth);
     }
     
