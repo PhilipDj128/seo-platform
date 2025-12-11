@@ -59,19 +59,21 @@ export default function Navigation() {
             </Link>
           ))}
           <ThemeToggle />
-          {isAuthed ? (
-            <Button variant="secondary" onClick={handleLogout}>
-              Logga ut
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Link href="/login">
-                <Button variant="ghost">Logga in</Button>
-              </Link>
-              <Link href="/signup">
-                <Button>Skapa konto</Button>
-              </Link>
-            </div>
+          {!loading && (
+            isAuthed ? (
+              <Button variant="secondary" onClick={handleLogout}>
+                Logga ut
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login">
+                  <Button variant="ghost">Logga in</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button>Skapa konto</Button>
+                </Link>
+              </div>
+            )
           )}
         </div>
         <div className="flex items-center gap-3 md:hidden">
@@ -101,23 +103,25 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
-            {isAuthed ? (
-              <Button variant="secondary" onClick={handleLogout} className="w-full">
-                Logga ut
-              </Button>
-            ) : (
-              <>
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="block w-full">
-                  <Button variant="ghost" className="w-full">
-                    Logga in
-                  </Button>
-                </Link>
-                <Link href="/signup" onClick={() => setMobileOpen(false)} className="block w-full">
-                  <Button className="w-full">
-                    Skapa konto
-                  </Button>
-                </Link>
-              </>
+            {!loading && (
+              isAuthed ? (
+                <Button variant="secondary" onClick={handleLogout} className="w-full">
+                  Logga ut
+                </Button>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setMobileOpen(false)} className="block w-full">
+                    <Button variant="ghost" className="w-full">
+                      Logga in
+                    </Button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setMobileOpen(false)} className="block w-full">
+                    <Button className="w-full">
+                      Skapa konto
+                    </Button>
+                  </Link>
+                </>
+              )
             )}
           </div>
         </div>
