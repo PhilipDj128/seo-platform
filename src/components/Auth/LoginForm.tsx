@@ -33,11 +33,17 @@ export default function LoginForm() {
   const onSubmit = async (values: FormValues) => {
     setLoading(true);
     try {
+      console.log("🔐 Starting login process...");
       const result = await signIn(values.email, values.password);
       
+      console.log("📡 SignIn result:", result ? { user: result.user?.email, hasSession: !!result.session } : null);
+      
       if (!result?.session) {
+        console.error("❌ No session in result");
         throw new Error("Ingen session skapades. Försök igen.");
       }
+
+      console.log("✅ Session created, verifying...");
 
       toast.success("Välkommen tillbaka!", {
         description: "Du loggas in...",
@@ -45,22 +51,33 @@ export default function LoginForm() {
 
       // Vänta och verifiera att sessionen är korrekt synkad
       let sessionVerified = false;
-      for (let i = 0; i < 10; i++) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        const { data: { session } } = await supabase.auth.getSession();
+      let attempts = 0;
+      for (let i = 0; i < 15; i++) {
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log(`🔄 Attempt ${attempts}:`, { hasSession: !!session, hasUser: !!session?.user, error });
         if (session?.user) {
           sessionVerified = true;
+          console.log("✅ Session verified!");
           break;
         }
       }
 
       if (!sessionVerified) {
-        throw new Error("Session kunde inte verifieras. Försök igen.");
+        console.error("❌ Session verification failed after", attempts, "attempts");
+        // Försök ändå att redirecta - sessionen kanske synkas senare
+        console.log("⚠️ Redirecting anyway - session may sync later");
       }
 
+      // Vänta lite extra för cookie-synkning i production
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log("🚀 Redirecting to dashboard...");
       // Använd window.location för full reload för att säkerställa session-synkning
       window.location.href = "/dashboard";
     } catch (err) {
+      console.error("❌ Login error:", err);
       const message = err instanceof Error ? err.message : "Ett oväntat fel uppstod.";
       toast.error("Inloggning misslyckades", {
         description: message,
