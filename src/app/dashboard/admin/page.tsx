@@ -425,8 +425,8 @@ export default function AdminDashboard() {
                     <td className="p-4">
                       <div className="flex gap-2">
                         <Button
-                          size="sm"
                           variant="secondary"
+                          className="text-sm px-3 py-1.5"
                           onClick={(e) => {
                             e.stopPropagation();
                             downloadPDF(offer);
@@ -436,8 +436,8 @@ export default function AdminDashboard() {
                           📄
                         </Button>
                         <Button
-                          size="sm"
                           variant="secondary"
+                          className="text-sm px-3 py-1.5"
                           onClick={(e) => {
                             e.stopPropagation();
                             sendReminderEmail(offer);
