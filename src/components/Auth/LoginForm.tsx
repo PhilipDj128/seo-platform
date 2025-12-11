@@ -91,11 +91,28 @@ export default function LoginForm() {
       }
 
       // Extra väntan för cookie-synkning i production
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       console.log("🚀 Redirecting to /dashboard...");
-      // Använd window.location.replace för att förhindra redirect-loop
-      window.location.replace("/dashboard");
+      console.log("🚀 Current URL:", window.location.href);
+      
+      // Försök flera metoder för att säkerställa redirect
+      try {
+        // Metod 1: window.location.replace (förhindrar back-button)
+        window.location.replace("/dashboard");
+      } catch (err) {
+        console.error("❌ window.location.replace failed, trying router.push");
+        // Metod 2: router.push som backup
+        router.push("/dashboard");
+      }
+      
+      // Om inget fungerar, försök igen efter kort väntan
+      setTimeout(() => {
+        if (window.location.pathname !== "/dashboard") {
+          console.warn("⚠️ Still on login page, forcing redirect...");
+          window.location.href = "/dashboard";
+        }
+      }, 2000);
       
     } catch (err) {
       console.error("❌ LOGIN ERROR CAUGHT:", err);
