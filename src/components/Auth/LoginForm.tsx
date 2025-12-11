@@ -10,7 +10,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { signIn } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
+import { supabase, syncSessionToCookies } from "@/lib/supabase";
 
 const schema = z.object({
   email: z.string().email("Ogiltig e-postadress"),
@@ -90,29 +90,18 @@ export default function LoginForm() {
         console.warn("⚠️ Session not fully synced, but redirecting anyway");
       }
 
-      // Extra väntan för cookie-synkning i production
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Synka session till cookies så att middleware kan läsa den
+      console.log("🔄 Syncing session to cookies...");
+      await syncSessionToCookies();
+      
+      // Extra väntan för cookie-synkning
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log("🚀 Redirecting to /dashboard...");
       console.log("🚀 Current URL:", window.location.href);
       
-      // Försök flera metoder för att säkerställa redirect
-      try {
-        // Metod 1: window.location.replace (förhindrar back-button)
-        window.location.replace("/dashboard");
-      } catch (err) {
-        console.error("❌ window.location.replace failed, trying router.push");
-        // Metod 2: router.push som backup
-        router.push("/dashboard");
-      }
-      
-      // Om inget fungerar, försök igen efter kort väntan
-      setTimeout(() => {
-        if (window.location.pathname !== "/dashboard") {
-          console.warn("⚠️ Still on login page, forcing redirect...");
-          window.location.href = "/dashboard";
-        }
-      }, 2000);
+      // Använd window.location.replace för full reload så middleware kan läsa cookies
+      window.location.replace("/dashboard");
       
     } catch (err) {
       console.error("❌ LOGIN ERROR CAUGHT:", err);
