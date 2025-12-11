@@ -32,17 +32,26 @@ export default function LoginForm() {
   const onSubmit = async (values: FormValues) => {
     setLoading(true);
     try {
-      await signIn(values.email, values.password);
+      const result = await signIn(values.email, values.password);
+      
+      if (!result?.session) {
+        throw new Error("Ingen session skapades. Försök igen.");
+      }
+
       toast.success("Välkommen tillbaka!", {
         description: "Du loggas in...",
       });
-      router.push("/dashboard");
+
+      // Vänta lite för att sessionen ska synkas korrekt
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Använd window.location för full reload för att säkerställa session-synkning
+      window.location.href = "/dashboard";
     } catch (err) {
       const message = err instanceof Error ? err.message : "Ett oväntat fel uppstod.";
       toast.error("Inloggning misslyckades", {
         description: message,
       });
-    } finally {
       setLoading(false);
     }
   };
