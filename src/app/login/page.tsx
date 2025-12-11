@@ -1,16 +1,12 @@
-"use client";
-
-import { useEffect } from "react";
 import LoginForm from "@/components/Auth/LoginForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
-export default function LoginPage() {
-  useEffect(() => {
-    console.log("📄 LoginPage component mounted");
-    console.log("📄 Current URL:", window.location.href);
-  }, []);
+export const metadata = {
+  title: "Logga in | SEO Platform",
+};
 
+export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-md items-center px-4 py-16">
       <div className="w-full space-y-6">
