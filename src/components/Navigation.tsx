@@ -18,13 +18,16 @@ const links = [
 export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isAuthed, setIsAuthed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    setIsAuthed(Boolean(user));
-  }, [pathname, user]);
+    // Vänta tills loading är klar innan vi sätter isAuthed
+    if (!loading) {
+      setIsAuthed(Boolean(user));
+    }
+  }, [pathname, user, loading]);
 
   const handleLogout = async () => {
     await signOut();
