@@ -320,8 +320,7 @@ export default function CustomerPortal() {
 
                 <div className="flex gap-2">
                   <Button
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 text-sm px-3 py-1.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       downloadPDF(item);
@@ -330,8 +329,8 @@ export default function CustomerPortal() {
                     📄 Ladda ner offert
                   </Button>
                   <Button
-                    size="sm"
                     variant="secondary"
+                    className="text-sm px-3 py-1.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedProject(item);
