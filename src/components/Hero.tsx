@@ -1,3 +1,6 @@
+"use client";
+
+import Link from "next/link";
 import { Button } from "./ui/button";
 
 export default function Hero() {
@@ -15,10 +18,12 @@ export default function Hero() {
             Automatisera rapporter, hitta luckor och leverera snabbare resultat.
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Button href="/signup">Kom igång gratis</Button>
-            <Button variant="secondary" href="/login">
-              Logga in
-            </Button>
+            <Link href="/signup">
+              <Button>Kom igång gratis</Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="secondary">Logga in</Button>
+            </Link>
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-slate-300">
             <span className="badge">Single sign-on</span>
