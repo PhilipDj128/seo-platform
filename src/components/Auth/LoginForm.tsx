@@ -73,11 +73,29 @@ export default function LoginForm() {
         description: "Omdirigerar till dashboard...",
       });
 
-      // Enklare approach - direkt redirect efter kort väntan
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Vänta och verifiera att sessionen är synkad i localStorage/cookies
+      console.log("🔄 Verifying session sync...");
+      let sessionSynced = false;
+      for (let i = 0; i < 20; i++) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          console.log(`✅ Session synced after ${i + 1} attempts`);
+          sessionSynced = true;
+          break;
+        }
+      }
+
+      if (!sessionSynced) {
+        console.warn("⚠️ Session not fully synced, but redirecting anyway");
+      }
+
+      // Extra väntan för cookie-synkning i production
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log("🚀 Redirecting to /dashboard...");
-      window.location.href = "/dashboard";
+      // Använd window.location.replace för att förhindra redirect-loop
+      window.location.replace("/dashboard");
       
     } catch (err) {
       console.error("❌ LOGIN ERROR CAUGHT:", err);

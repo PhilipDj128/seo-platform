@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth, signOut } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
@@ -37,13 +38,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Ge lite extra tid för session-synkning i production
+    // Ge extra tid för session-synkning i production
     if (!loading && !user) {
-      const timer = setTimeout(() => {
-        if (!user) {
+      const timer = setTimeout(async () => {
+        // Dubbelkolla sessionen en sista gång
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          console.log("❌ No session found, redirecting to login");
           router.push("/login");
+        } else {
+          console.log("✅ Session found, staying on dashboard");
         }
-      }, 2000); // Vänta 2 sekunder för session-synkning
+      }, 3000); // Vänta 3 sekunder för session-synkning
       
       return () => clearTimeout(timer);
     }
