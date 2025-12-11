@@ -225,9 +225,9 @@ export default function CustomerPortal() {
       const options = {
         margin: 10,
         filename: `offert-${project.project.domain_url.replace(/[^a-z0-9]/gi, '-')}-${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+        jsPDF: { orientation: 'portrait' as const, unit: 'mm' as const, format: 'a4' as const },
       };
 
       await html2pdf().set(options).from(element).save();
