@@ -10,6 +10,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { signIn } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 const schema = z.object({
   email: z.string().email("Ogiltig e-postadress"),
@@ -42,9 +43,21 @@ export default function LoginForm() {
         description: "Du loggas in...",
       });
 
-      // Vänta lite för att sessionen ska synkas korrekt
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Vänta och verifiera att sessionen är korrekt synkad
+      let sessionVerified = false;
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          sessionVerified = true;
+          break;
+        }
+      }
+
+      if (!sessionVerified) {
+        throw new Error("Session kunde inte verifieras. Försök igen.");
+      }
+
       // Använd window.location för full reload för att säkerställa session-synkning
       window.location.href = "/dashboard";
     } catch (err) {
